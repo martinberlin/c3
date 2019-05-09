@@ -5,6 +5,12 @@
   (global = global || self, global.c3 = factory());
 }(this, function () { 'use strict';
 
+    var yPosRegion = 1;
+    var regionHeight = 20;
+    var tmpRegionStart;
+    var tmpRegionEnd;
+    var enableRegionsDebug = true; // Turn off to disable console.log
+
   function _typeof(obj) {
     if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") {
       _typeof = function (obj) {
@@ -4909,6 +4915,7 @@
     }
 
     config.regions = regions;
+
     $$.redrawWithoutRescale();
     return config.regions;
   };
@@ -4921,6 +4928,7 @@
       return config.regions;
     }
 
+    if (enableRegionsDebug) console.log(regions);
     config.regions = config.regions.concat(regions);
     $$.redrawWithoutRescale();
     return config.regions;
@@ -8681,6 +8689,8 @@
   };
 
   ChartInternal.prototype.updateRegion = function (duration) {
+      if (enableRegionsDebug) console.log('updateRegion', duration);
+
     var $$ = this,
         config = $$.config; // hide if arc type
 
@@ -8692,6 +8702,8 @@
   };
 
   ChartInternal.prototype.redrawRegion = function (withTransition, transition) {
+      yPosRegion = 0;
+      if (enableRegionsDebug) console.log('redrawRegion', withTransition, transition);
     var $$ = this,
         regions = $$.mainRegion;
     return [(withTransition ? regions.transition(transition) : regions).attr("x", $$.regionX.bind($$)).attr("y", $$.regionY.bind($$)).attr("width", $$.regionWidth.bind($$)).attr("height", $$.regionHeight.bind($$)).style("fill-opacity", function (d) {
@@ -8715,6 +8727,7 @@
   };
 
   ChartInternal.prototype.regionY = function (d) {
+
     var $$ = this,
         config = $$.config,
         yPos,
@@ -8726,10 +8739,18 @@
       yPos = config.axis_rotated ? 'start' in d ? $$.x($$.isTimeSeries() ? $$.parseDate(d.start) : d.start) : 0 : 0;
     }
 
-    return yPos;
+      if ((tmpRegionStart == d.start && tmpRegionEnd == d.end) === false) {
+          if (enableRegionsDebug) console.log('sumYpos for region: regionY,yPos,yPosRegion,d', yPos, yPosRegion, d);
+          yPosRegion = yPosRegion+regionHeight;
+      }
+
+      tmpRegionStart = d.start;
+      tmpRegionEnd = d.end;
+    return yPosRegion;
   };
 
   ChartInternal.prototype.regionWidth = function (d) {
+
     var $$ = this,
         config = $$.config,
         start = $$.regionX(d),
@@ -8757,11 +8778,13 @@
     } else {
       end = config.axis_rotated ? 'end' in d ? $$.x($$.isTimeSeries() ? $$.parseDate(d.end) : d.end) : $$.height : $$.height;
     }
-
-    return end < start ? 0 : end - start;
+    // Return fixed regionHeight
+    return regionHeight;
+    //return end < start ? 0 : end - start;
   };
 
   ChartInternal.prototype.isRegionOnX = function (d) {
+
     return !d.axis || d.axis === 'x';
   };
 
@@ -9444,6 +9467,7 @@
 
     if ($$.isTimeSeries()) {
       sWithRegion = function sWithRegion(d0, d1, j, diff) {
+
         var x0 = d0.x.getTime(),
             x_diff = d1.x - d0.x,
             xv0 = new Date(x0 + x_diff * j),
@@ -9474,6 +9498,7 @@
 
 
     for (i = 0; i < d.length; i++) {
+
       // Draw as normal
       if (isUndefined(regions) || !isWithinRegions(d[i].x, regions)) {
         s += " " + xValue(d[i]) + " " + yValue(d[i]);

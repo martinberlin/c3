@@ -8,13 +8,13 @@
     <script src="https://d3js.org/d3.v5.min.js" charset="utf-8"></script>
     <script src="../js/c3.js"></script>
     <script>
-
+        console.log("Attempting to modify regions more as a Gantt chart");
 var chart = c3.generate({
     data: {
         x: 'date',
         columns: [
-            ['date', '2014-01-01', '2014-01-10', '2014-01-20', '2014-01-30', '2014-02-01'],
-            ['sample', 30, 200, 100, 400, 150, 250]
+            ['date', '2014-01-01', '2014-01-02', '2014-01-03', '2014-01-04', '2014-01-05', '2014-01-06'],
+            ['sample', 10, 10, 20, 20, 30, 30]
         ]
     },
     axis: {
@@ -26,23 +26,11 @@ var chart = c3.generate({
         },
     },
     regions: [
-        {start: '2014-01-05', end: '2014-01-10'},
-//        {start: new Date('2014-01-10'), end: new Date('2014-01-15')},
-        {start: 1390608000000, end: 1391040000000}
+        {start: '2014-01-01', end: '2014-01-02', color: 'red'},
+        {start: '2014-01-02', end: '2014-01-03', color: 'green'},
     ]
 });
 
-setTimeout(function () {
-    chart.load({
-        columns: [
-            ['date', +new Date('2014-01-01'), +new Date('2014-01-10'), +new Date('2014-03-01')],
-            ['sample', 100, 200, 300]
-        ]
-    });
-    chart.regions([
-        {start: +new Date('2014-01-10'), end: +new Date('2014-01-15')}
-    ]);
-}, 1000);
 
     </script>
   </body>
