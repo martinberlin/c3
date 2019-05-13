@@ -6,12 +6,9 @@
 }(this, function () { 'use strict';
 
     var yPosRegion = 1;
-    var regionHeight = 10;
+    var regionHeight = 20;
     var tmpRegionStart;
     var tmpRegionEnd;
-    var enableRegionsDebug = true; // Turn off to disable console.log
-
-    if (enableRegionsDebug) console.log("Attempting to modify regions more as a Gantt chart!!");
 
   function _typeof(obj) {
     if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") {
@@ -4929,8 +4926,7 @@
     if (!regions) {
       return config.regions;
     }
-
-    //if (enableRegionsDebug) console.log(regions);
+      console.log(regions);
     config.regions = config.regions.concat(regions);
     $$.redrawWithoutRescale();
     return config.regions;
@@ -8688,42 +8684,30 @@
   ChartInternal.prototype.initRegion = function () {
     var $$ = this;
     $$.region = $$.main.append('g').attr("clip-path", $$.clipPath).attr("class", CLASS.regions);
-
-    //console.log($$.region);
- };
+  };
 
   ChartInternal.prototype.updateRegion = function (duration) {
-      //if (enableRegionsDebug) console.log('updateRegion', duration);
+      console.log('updateRegion', duration);
 
     var $$ = this,
         config = $$.config; // hide if arc type
 
     $$.region.style('visibility', $$.hasArcType() ? 'hidden' : 'visible');
     var mainRegion = $$.main.select('.' + CLASS.regions).selectAll('.' + CLASS.region).data(config.regions);
-    var mainRegionEnter = mainRegion.enter().append('rect')
-        .attr("x", $$.regionX.bind($$))
-        .attr("y", $$.regionY.bind($$))
-        .attr("width", $$.regionWidth.bind($$))
-        .attr("height", $$.regionHeight.bind($$))
-        .style("fill", $$.regionColor.bind($$));
-
+    var mainRegionEnter = mainRegion.enter().append('rect').attr("x", $$.regionX.bind($$)).attr("y", $$.regionY.bind($$)).attr("width", $$.regionWidth.bind($$)).attr("height", $$.regionHeight.bind($$)).style("fill-opacity", 0);
     $$.mainRegion = mainRegionEnter.merge(mainRegion).attr('class', $$.classRegion.bind($$));
     mainRegion.exit().transition().duration(duration).style("opacity", 0).remove();
   };
 
   ChartInternal.prototype.redrawRegion = function (withTransition, transition) {
       yPosRegion = 0;
-      if (enableRegionsDebug) console.log('redrawRegion', withTransition, transition);
+      console.log('redrawRegion', withTransition, transition);
     var $$ = this,
         regions = $$.mainRegion;
     return [(withTransition ? regions.transition(transition) : regions).attr("x", $$.regionX.bind($$)).attr("y", $$.regionY.bind($$)).attr("width", $$.regionWidth.bind($$)).attr("height", $$.regionHeight.bind($$)).style("fill-opacity", function (d) {
-      return isValue(d.opacity) ? d.opacity : 0.5;
+      return isValue(d.opacity) ? d.opacity : 0.1;
     })];
   };
-
-  ChartInternal.prototype.regionColor = function (d) {
-        return isValue(d.color) ? d.color : '#EEEEEE';
-    };
 
   ChartInternal.prototype.regionX = function (d) {
     var $$ = this,
@@ -8754,7 +8738,7 @@
     }
 
       if ((tmpRegionStart == d.start && tmpRegionEnd == d.end) === false) {
-          //if (enableRegionsDebug) console.log('sumYpos for region: regionY,yPos,yPosRegion,d', yPos, yPosRegion, d);
+          console.log('sumYpos for region: regionY,yPos,yPosRegion,d', yPos, yPosRegion, d);
           yPosRegion = yPosRegion+regionHeight;
       }
 
