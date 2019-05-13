@@ -5,8 +5,9 @@
   (global = global || self, global.c3 = factory());
 }(this, function () { 'use strict';
 
-    var yPosRegion = 1;
+    var yPosRegion = 0;
     var regionHeight = 10;
+    var yPosLabel = regionHeight;
     var tmpRegionStart;
     var tmpRegionEnd;
     var enableRegionsDebug = true; // Turn off to disable console.log
@@ -8688,8 +8689,7 @@
   ChartInternal.prototype.initRegion = function () {
     var $$ = this;
     $$.region = $$.main.append('g').attr("clip-path", $$.clipPath).attr("class", CLASS.regions);
-
-    //console.log($$.region);
+    yPosLabel = regionHeight;
  };
 
   ChartInternal.prototype.updateRegion = function (duration) {
@@ -8706,13 +8706,17 @@
         .attr("width", $$.regionWidth.bind($$))
         .attr("height", $$.regionHeight.bind($$))
         .style("fill", $$.regionColor.bind($$));
-
+      mainRegion.enter().append('text')
+          .attr("x", $$.regionX.bind($$))
+          .attr("y", $$.regionYLabel.bind($$))
+          .style("fill", "black")
+          .text($$.regionLabelTitle.bind($$));
     $$.mainRegion = mainRegionEnter.merge(mainRegion).attr('class', $$.classRegion.bind($$));
     mainRegion.exit().transition().duration(duration).style("opacity", 0).remove();
   };
 
   ChartInternal.prototype.redrawRegion = function (withTransition, transition) {
-      yPosRegion = 0;
+      yPosRegion = 0; yPosLabel = regionHeight;
       if (enableRegionsDebug) console.log('redrawRegion', withTransition, transition);
     var $$ = this,
         regions = $$.mainRegion;
@@ -8720,10 +8724,22 @@
       return isValue(d.opacity) ? d.opacity : 0.5;
     })];
   };
-
+  // New methods to enable a basic GANTT Chart with a color and title
   ChartInternal.prototype.regionColor = function (d) {
         return isValue(d.color) ? d.color : '#EEEEEE';
     };
+  ChartInternal.prototype.regionLabelTitle = function (d) {
+        return isValue(d.title) ? d.title : '';
+    };
+
+  ChartInternal.prototype.regionYLabel = function (d) {
+      if ((tmpRegionStart == d.start && tmpRegionEnd == d.end) === false) {
+          yPosLabel = yPosLabel+regionHeight;
+      }
+      tmpRegionStart = d.start;
+      tmpRegionEnd = d.end;
+      return yPosLabel;
+  }
 
   ChartInternal.prototype.regionX = function (d) {
     var $$ = this,
