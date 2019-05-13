@@ -7,7 +7,8 @@
 
     var yPosRegion = 0;
     var regionHeight = 10;
-    var yPosLabel = regionHeight;
+    var yPosLabelCorrection = 2;
+    var yPosLabel = regionHeight-yPosLabelCorrection;
     var tmpRegionStart;
     var tmpRegionEnd;
     var enableRegionsDebug = true; // Turn off to disable console.log
@@ -8716,7 +8717,8 @@
   };
 
   ChartInternal.prototype.redrawRegion = function (withTransition, transition) {
-      yPosRegion = 0; yPosLabel = regionHeight;
+      yPosRegion = 0;
+      yPosLabel = regionHeight-yPosLabelCorrection;
       if (enableRegionsDebug) console.log('redrawRegion', withTransition, transition);
     var $$ = this,
         regions = $$.mainRegion;
