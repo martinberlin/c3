@@ -1822,7 +1822,14 @@
         // transition should be derived from one transition
         transition = d3.transition().duration(duration);
         transitionsToWait = [];
-        [$$.redrawBar(drawBar, true, transition), $$.redrawLine(drawLine, true, transition), $$.redrawArea(drawArea, true, transition), $$.redrawCircle(cx, cy, true, transition), $$.redrawText(xForText, yForText, options.flow, true, transition), $$.redrawRegion(true, transition), $$.redrawGrid(true, transition)].forEach(function (transitions) {
+        [$$.redrawBar(drawBar, true, transition),
+            $$.redrawLine(drawLine, true, transition),
+            $$.redrawArea(drawArea, true, transition),
+            $$.redrawCircle(cx, cy, true, transition),
+            $$.redrawText(xForText, yForText, options.flow, true, transition),
+            $$.redrawRegion(true, transition),
+            $$.redrawRegionTitles(),
+            $$.redrawGrid(true, transition)].forEach(function (transitions) {
           transitions.forEach(function (transition) {
             transitionsToWait.push(transition);
           });
@@ -1848,6 +1855,7 @@
         $$.redrawCircle(cx, cy);
         $$.redrawText(xForText, yForText, options.flow);
         $$.redrawRegion();
+        $$.redrawRegionTitles();
         $$.redrawGrid();
 
         if (flow) {
@@ -8707,12 +8715,14 @@
         .attr("width", $$.regionWidth.bind($$))
         .attr("height", $$.regionHeight.bind($$))
         .style("fill", $$.regionColor.bind($$));
-      mainRegion.enter().append('text')
-          .attr("x", $$.regionX.bind($$))
-          .attr("y", $$.regionYLabel.bind($$))
+     var titles = mainRegion.enter().append('text')
+          .attr("x", $$.regionXTitles.bind($$))
+          .attr("y", $$.regionYTitles.bind($$))
           .style("fill", "black")
           .text($$.regionLabelTitle.bind($$));
     $$.mainRegion = mainRegionEnter.merge(mainRegion).attr('class', $$.classRegion.bind($$));
+    $$.regionTitles = titles;
+
     mainRegion.exit().transition().duration(duration).style("opacity", 0).remove();
   };
 
@@ -8722,10 +8732,32 @@
       if (enableRegionsDebug) console.log('redrawRegion', withTransition, transition);
     var $$ = this,
         regions = $$.mainRegion;
-    return [(withTransition ? regions.transition(transition) : regions).attr("x", $$.regionX.bind($$)).attr("y", $$.regionY.bind($$)).attr("width", $$.regionWidth.bind($$)).attr("height", $$.regionHeight.bind($$)).style("fill-opacity", function (d) {
+
+      var mainRegionsArray = [(withTransition ? regions.transition(transition) : regions)
+        .attr("x", $$.regionX.bind($$))
+        .attr("y", $$.regionY.bind($$))
+        .attr("width", $$.regionWidth.bind($$))
+        .attr("height", $$.regionHeight.bind($$)).style("fill-opacity", function (d) {
       return isValue(d.opacity) ? d.opacity : 0.5;
     })];
+      console.log("mainRegionsArray", mainRegionsArray);
+      return mainRegionsArray;
   };
+
+    ChartInternal.prototype.redrawRegionTitles = function () {
+        yPosLabel = regionHeight-yPosLabelCorrection;
+        if (enableRegionsDebug) console.log('redrawRegionTitles');
+        var $$ = this,
+            regionTitles = $$.regionTitles;
+        var regionTitlesArray = [regionTitles
+            .attr("x", $$.regionXTitles.bind($$))
+            .attr("y", $$.regionYTitles.bind($$))
+            .style("fill", "black")
+            .text($$.regionLabelTitle.bind($$))
+        ];
+        console.log("regionTitlesArray", regionTitlesArray);
+        return regionTitlesArray;
+    };
   // New methods to enable a basic GANTT Chart with a color and title
   ChartInternal.prototype.regionColor = function (d) {
         return isValue(d.color) ? d.color : '#EEEEEE';
@@ -8734,7 +8766,7 @@
         return isValue(d.title) ? d.title : '';
     };
 
-  ChartInternal.prototype.regionYLabel = function (d) {
+  ChartInternal.prototype.regionYTitles = function (d) {
       if ((tmpRegionStart == d.start && tmpRegionEnd == d.end) === false) {
           yPosLabel = yPosLabel+regionHeight;
       }
@@ -8758,7 +8790,21 @@
     return xPos;
   };
 
-  ChartInternal.prototype.regionY = function (d) {
+  ChartInternal.prototype.regionXTitles = function (d) {
+      //if (enableRegionsDebug) console.log('regionXTitles');
+        var $$ = this,
+            config = $$.config,
+            xPos,
+            yScale = d.axis === 'y' ? $$.y : $$.y2;
+        if (d.axis === 'y' || d.axis === 'y2') {
+            xPos = config.axis_rotated ? 'start' in d ? yScale(d.start) : 0 : 0;
+        } else {
+            xPos = config.axis_rotated ? 0 : 'start' in d ? $$.x($$.isTimeSeries() ? $$.parseDate(d.start) : d.start) : 0;
+        }
+        return xPos;
+    };
+
+  ChartInternal.prototype.regionY = function(d) {
 
     var $$ = this,
         config = $$.config,
