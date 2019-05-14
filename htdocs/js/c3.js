@@ -591,7 +591,7 @@
     defocused: 'c3-defocused',
     region: 'c3-region',
     regions: 'c3-regions',
-      regionsTitles: 'c3-regions-titles',
+      regionTitles: 'c3-region-titles',
     title: 'c3-title',
     tooltipContainer: 'c3-tooltip-container',
     tooltip: 'c3-tooltip',
@@ -8703,7 +8703,7 @@
   ChartInternal.prototype.initRegion = function () {
     var $$ = this;
     $$.region = $$.main.append('g').attr("clip-path", $$.clipPath).attr("class", CLASS.regions);
-      $$.regionTitles = $$.main.append('g').attr("clip-path", $$.clipPath).attr("class", CLASS.regionsTitles);
+      $$.regionTitles = $$.main.append('g').attr("clip-path", $$.clipPath).attr("class", CLASS.regionTitles);
     yPosLabel = regionHeight;
  };
 
@@ -8715,7 +8715,7 @@
 
     $$.region.style('visibility', $$.hasArcType() ? 'hidden' : 'visible');
       var mainRegion = $$.main.select('.' + CLASS.regions).selectAll('.' + CLASS.region).data(config.regions);
-      var mainRegionTitles = $$.main.select('.' + CLASS.regionsTitles).selectAll('.' + CLASS.regionsTitles).data(config.regions);
+      var mainRegionTitles = $$.main.select('.' + CLASS.regionTitles).selectAll('.' + CLASS.regionTitles).data(config.regions);
     var mainRegionEnter = mainRegion.enter().append('rect')
         .attr("x", $$.regionX.bind($$))
         .attr("y", $$.regionY.bind($$))
