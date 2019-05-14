@@ -591,6 +591,7 @@
     defocused: 'c3-defocused',
     region: 'c3-region',
     regions: 'c3-regions',
+      regionsTitles: 'c3-regions-titles',
     title: 'c3-title',
     tooltipContainer: 'c3-tooltip-container',
     tooltip: 'c3-tooltip',
@@ -1828,7 +1829,7 @@
             $$.redrawCircle(cx, cy, true, transition),
             $$.redrawText(xForText, yForText, options.flow, true, transition),
             $$.redrawRegion(true, transition),
-            $$.redrawRegionTitles(),
+            $$.redrawRegionTitles(true, transition),
             $$.redrawGrid(true, transition)].forEach(function (transitions) {
           transitions.forEach(function (transition) {
             transitionsToWait.push(transition);
@@ -2277,6 +2278,7 @@
 
     function callResizeFunctions() {
       resizeFunctions.forEach(function (f) {
+          //console.log(f);
         f();
       });
     }
@@ -5941,6 +5943,9 @@
   ChartInternal.prototype.classRegion = function (d, i) {
     return this.generateClass(CLASS.region, i) + ' ' + ('class' in d ? d['class'] : '');
   };
+    ChartInternal.prototype.classRegionTitles = function (d, i) {
+        return this.generateClass(CLASS.regionTitles, i) + ' ' + ('class' in d ? d['class'] : '');
+    };
 
   ChartInternal.prototype.classEvent = function (d) {
     return this.generateClass(CLASS.eventRect, d.index);
@@ -8698,6 +8703,7 @@
   ChartInternal.prototype.initRegion = function () {
     var $$ = this;
     $$.region = $$.main.append('g').attr("clip-path", $$.clipPath).attr("class", CLASS.regions);
+      $$.regionTitles = $$.main.append('g').attr("clip-path", $$.clipPath).attr("class", CLASS.regionsTitles);
     yPosLabel = regionHeight;
  };
 
@@ -8708,22 +8714,25 @@
         config = $$.config; // hide if arc type
 
     $$.region.style('visibility', $$.hasArcType() ? 'hidden' : 'visible');
-    var mainRegion = $$.main.select('.' + CLASS.regions).selectAll('.' + CLASS.region).data(config.regions);
+      var mainRegion = $$.main.select('.' + CLASS.regions).selectAll('.' + CLASS.region).data(config.regions);
+      var mainRegionTitles = $$.main.select('.' + CLASS.regionsTitles).selectAll('.' + CLASS.regionsTitles).data(config.regions);
     var mainRegionEnter = mainRegion.enter().append('rect')
         .attr("x", $$.regionX.bind($$))
         .attr("y", $$.regionY.bind($$))
         .attr("width", $$.regionWidth.bind($$))
         .attr("height", $$.regionHeight.bind($$))
         .style("fill", $$.regionColor.bind($$));
-     var titles = mainRegion.enter().append('text')
+
+     var titles = mainRegionTitles.enter().append('text')
           .attr("x", $$.regionXTitles.bind($$))
           .attr("y", $$.regionYTitles.bind($$))
           .style("fill", "black")
           .text($$.regionLabelTitle.bind($$));
     $$.mainRegion = mainRegionEnter.merge(mainRegion).attr('class', $$.classRegion.bind($$));
-    $$.regionTitles = titles;
+    $$.regionTitles = titles.merge(mainRegionTitles).attr('class', $$.classRegionTitles.bind($$));
 
-    mainRegion.exit().transition().duration(duration).style("opacity", 0).remove();
+      mainRegion.exit().transition().duration(duration).style("opacity", 0).remove();
+      mainRegionTitles.exit().transition().duration(duration).style("opacity", 0).remove();
   };
 
   ChartInternal.prototype.redrawRegion = function (withTransition, transition) {
@@ -8740,20 +8749,20 @@
         .attr("height", $$.regionHeight.bind($$)).style("fill-opacity", function (d) {
       return isValue(d.opacity) ? d.opacity : 0.5;
     })];
+
       console.log("mainRegionsArray", mainRegionsArray);
       return mainRegionsArray;
   };
 
-    ChartInternal.prototype.redrawRegionTitles = function () {
+    ChartInternal.prototype.redrawRegionTitles = function (withTransition, transition) {
+
         yPosLabel = regionHeight-yPosLabelCorrection;
         if (enableRegionsDebug) console.log('redrawRegionTitles');
         var $$ = this,
             regionTitles = $$.regionTitles;
-        var regionTitlesArray = [regionTitles
-            .attr("x", $$.regionXTitles.bind($$))
-            .attr("y", $$.regionYTitles.bind($$))
-            .style("fill", "black")
-            .text($$.regionLabelTitle.bind($$))
+
+        var regionTitlesArray = [(withTransition ? regionTitles.transition(transition) : regionTitles)
+            .attr("x", $$.regionX.bind($$))
         ];
         console.log("regionTitlesArray", regionTitlesArray);
         return regionTitlesArray;
