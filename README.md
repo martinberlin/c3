@@ -22,6 +22,18 @@ You can run these samples as:
 ```
 $ npm run serve-static
 ```
+## Fork preview
+
+![Region Timeseries update](/docs/img/c3_regions_timeseries.png)
+
+As npm run serve-static did not work in the Dev VM I'm using I just copied it to :
+htdocs/js/c3.js
+
+Do a : 
+diff c3.js htdocs/js/c3.js
+ 
+To see the differences and move it to your own test environment.
+This is a work I did just for a special use-case and there is no guarantee that it will work in a production environment.
 
 ## Google Group
 For general C3.js-related discussion, please visit our [Google Group at https://groups.google.com/forum/#!forum/c3js](https://groups.google.com/forum/#!forum/c3js).
